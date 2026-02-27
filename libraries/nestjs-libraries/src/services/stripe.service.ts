@@ -831,16 +831,18 @@ export class StripeService {
       limit: 100,
     });
 
-    return charges.data.map((charge) => ({
-      id: charge.id,
-      amount: charge.amount,
-      currency: charge.currency,
-      created: charge.created,
-      status: charge.status,
-      refunded: charge.refunded,
-      amount_refunded: charge.amount_refunded,
-      description: charge.description,
-    }));
+    return charges.data
+      .filter((f) => f.status === 'succeeded')
+      .map((charge) => ({
+        id: charge.id,
+        amount: charge.amount,
+        currency: charge.currency,
+        created: charge.created,
+        status: charge.status,
+        refunded: charge.refunded,
+        amount_refunded: charge.amount_refunded,
+        description: charge.description,
+      }));
   }
 
   async refundCharges(organizationId: string, chargeIds: string[]) {
