@@ -86,4 +86,89 @@ export class EnterpriseController {
       return url;
     } catch (err) {}
   }
+
+  @Post('/integrations/:provider')
+  async getIntegrationUrl(
+    @Param('provider') provider: string,
+    @Body('params') params: string
+  ) {
+    try {
+      const load = AuthService.verifyJWT(params) as {
+        apiKey: string;
+        refreshId?: string;
+        externalUrl?: string;
+        webhookUrl?: string;
+        redirectUrl?: string;
+        onboarding?: boolean;
+      };
+
+      if (!load || !load.apiKey) {
+        return { error: 'Invalid parameters' };
+      }
+
+      const org = await this._organizationService.getOrgByApiKey(load.apiKey);
+
+      if (!org) {
+        return { error: 'Organization not found' };
+      }
+
+      if (
+        !this._integrationManager
+          .getAllowedSocialsIntegrations()
+          .includes(provider)
+      ) {
+        return { error: 'Integration not allowed' };
+      }
+
+      const integrationProvider =
+        this._integrationManager.getSocialIntegration(provider);
+
+      if (integrationProvider.externalUrl && !load.externalUrl) {
+        return { error: 'Missing external url' };
+      }
+
+      try {
+        const getExternalUrl = integrationProvider.externalUrl
+          ? {
+              ...(await integrationProvider.externalUrl(load.externalUrl!)),
+              instanceUrl: load.externalUrl,
+            }
+          : undefined;
+
+        const { codeVerifier, state, url } =
+          await integrationProvider.generateAuthUrl(getExternalUrl);
+
+        if (load.refreshId) {
+          await ioRedis.set(`refresh:${state}`, load.refreshId, 'EX', 3600);
+        }
+
+        if (load.onboarding) {
+          await ioRedis.set(`onboarding:${state}`, 'true', 'EX', 3600);
+        }
+
+        if (load.webhookUrl) {
+          await ioRedis.set(`webhookUrl:${state}`, load.webhookUrl, 'EX', 3600);
+        }
+
+        if (load.redirectUrl) {
+          await ioRedis.set(`redirect:${state}`, load.redirectUrl, 'EX', 3600);
+        }
+
+        await ioRedis.set(`organization:${state}`, org.id, 'EX', 3600);
+        await ioRedis.set(`login:${state}`, codeVerifier, 'EX', 3600);
+        await ioRedis.set(
+          `external:${state}`,
+          JSON.stringify(getExternalUrl),
+          'EX',
+          3600
+        );
+
+        return { url };
+      } catch (err) {
+        return { error: 'Failed to generate authorization URL' };
+      }
+    } catch (err) {
+      return { error: 'Invalid JWT token' };
+    }
+  }
 }
