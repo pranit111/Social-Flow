@@ -52,11 +52,14 @@ RUN pnpm install --prod --ignore-scripts
 # Stage 2: Runtime stage
 FROM node:22.20-bookworm-slim
 
-# Install runtime dependencies only
+# Install runtime dependencies including build tools for native modules
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     nginx \
     curl \
+    python3 \
+    make \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup nginx user and directories
@@ -72,6 +75,9 @@ WORKDIR /app
 
 # Copy built application from builder stage
 COPY --from=builder /app /app
+
+# Rebuild native modules for the runtime environment
+RUN cd /app && pnpm rebuild bcrypt --update-notifier=false
 
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
