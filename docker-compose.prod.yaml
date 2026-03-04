@@ -1,0 +1,232 @@
+# Docker Compose for Production VPS Deployment
+# This will be used by GitHub Actions for automated deployments
+
+services:
+  postiz:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_VERSION: ${VERSION:-latest}
+    # For GitHub Actions deployment, this will be replaced with pre-built image
+    # image: your-registry/postiz-app:${VERSION:-latest}
+    container_name: postiz-app
+    restart: always
+    environment:
+      # === Required Settings - Update these in your .env file
+      MAIN_URL: ${MAIN_URL:-http://localhost:4007}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4007}
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4007/api}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postiz-user:postiz-password@postiz-postgres:5432/postiz-db}
+      REDIS_URL: ${REDIS_URL:-redis://postiz-redis:6379}
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://localhost:3000}
+      TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS:-temporal:7233}
+      IS_GENERAL: ${IS_GENERAL:-true}
+      DISABLE_REGISTRATION: ${DISABLE_REGISTRATION:-false}
+
+      # === Storage Settings
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      UPLOAD_DIRECTORY: ${UPLOAD_DIRECTORY:-/uploads}
+      NEXT_PUBLIC_UPLOAD_DIRECTORY: ${NEXT_PUBLIC_UPLOAD_DIRECTORY:-/uploads}
+
+      # === Cloudflare (R2) Settings - Optional
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+      CLOUDFLARE_ACCESS_KEY: ${CLOUDFLARE_ACCESS_KEY:-}
+      CLOUDFLARE_SECRET_ACCESS_KEY: ${CLOUDFLARE_SECRET_ACCESS_KEY:-}
+      CLOUDFLARE_BUCKETNAME: ${CLOUDFLARE_BUCKETNAME:-}
+      CLOUDFLARE_BUCKET_URL: ${CLOUDFLARE_BUCKET_URL:-}
+      CLOUDFLARE_REGION: ${CLOUDFLARE_REGION:-auto}
+
+      # === Social Media API Settings
+      X_API_KEY: ${X_API_KEY:-}
+      X_API_SECRET: ${X_API_SECRET:-}
+      LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
+      LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      THREADS_APP_ID: ${THREADS_APP_ID:-}
+      THREADS_APP_SECRET: ${THREADS_APP_SECRET:-}
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
+      YOUTUBE_CLIENT_ID: ${YOUTUBE_CLIENT_ID:-}
+      YOUTUBE_CLIENT_SECRET: ${YOUTUBE_CLIENT_SECRET:-}
+      TIKTOK_CLIENT_ID: ${TIKTOK_CLIENT_ID:-}
+      TIKTOK_CLIENT_SECRET: ${TIKTOK_CLIENT_SECRET:-}
+      PINTEREST_CLIENT_ID: ${PINTEREST_CLIENT_ID:-}
+      PINTEREST_CLIENT_SECRET: ${PINTEREST_CLIENT_SECRET:-}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      SLACK_ID: ${SLACK_ID:-}
+      SLACK_SECRET: ${SLACK_SECRET:-}
+      MASTODON_URL: ${MASTODON_URL:-https://mastodon.social}
+
+      # === Payment / Stripe Settings
+      FEE_AMOUNT: ${FEE_AMOUNT:-0.05}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_SIGNING_KEY: ${STRIPE_SIGNING_KEY:-}
+
+      # === Misc Settings
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      API_LIMIT: ${API_LIMIT:-30}
+      NX_ADD_PLUGINS: false
+
+    volumes:
+      - postiz-uploads:/uploads
+      - postiz-config:/config
+    ports:
+      - "${POSTIZ_PORT:-4007}:5000"
+    networks:
+      - postiz-network
+      - temporal-network
+    depends_on:
+      postiz-postgres:
+        condition: service_healthy
+      postiz-redis:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  postiz-postgres:
+    image: postgres:17-alpine
+    container_name: postiz-postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postiz-password}
+      POSTGRES_USER: ${POSTGRES_USER:-postiz-user}
+      POSTGRES_DB: ${POSTGRES_DB:-postiz-db}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - postiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postiz-user} -d ${POSTGRES_DB:-postiz-db}"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  postiz-redis:
+    image: redis:7.2-alpine
+    container_name: postiz-redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - postiz-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  # -----------------------
+  # Temporal Stack
+  # -----------------------
+  temporal-elasticsearch:
+    image: elasticsearch:7.17.27
+    container_name: temporal-elasticsearch
+    restart: always
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - temporal-network
+
+  temporal-postgresql:
+    image: postgres:16-alpine
+    container_name: temporal-postgresql
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${TEMPORAL_DB_PASSWORD:-temporal}
+      POSTGRES_USER: ${TEMPORAL_DB_USER:-temporal}
+    volumes:
+      - temporal-postgres-data:/var/lib/postgresql/data
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  temporal:
+    image: temporalio/auto-setup:1.28.1
+    container_name: temporal
+    restart: always
+    depends_on:
+      temporal-postgresql:
+        condition: service_healthy
+      temporal-elasticsearch:
+        condition: service_started
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=${TEMPORAL_DB_USER:-temporal}
+      - POSTGRES_PWD=${TEMPORAL_DB_PASSWORD:-temporal}
+      - POSTGRES_SEEDS=temporal-postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=true
+      - ES_SEEDS=temporal-elasticsearch
+      - ES_VERSION=v7
+      - TEMPORAL_NAMESPACE=default
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig:ro
+    networks:
+      - temporal-network
+    ports:
+      - "${TEMPORAL_PORT:-7233}:7233"
+
+  temporal-ui:
+    image: temporalio/ui:2.34.0
+    container_name: temporal-ui
+    restart: always
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    networks:
+      - temporal-network
+    ports:
+      - "${TEMPORAL_UI_PORT:-8080}:8080"
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  postiz-uploads:
+    driver: local
+  postiz-config:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  temporal-postgres-data:
+    driver: local
+
+networks:
+  postiz-network:
+    driver: bridge
+  temporal-network:
+    driver: bridge
