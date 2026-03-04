@@ -45,8 +45,13 @@ ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
 # Generate Prisma client (now that schema file is available)
 RUN pnpm run prisma-generate
 
-# Build all applications
-RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+# Build applications sequentially to reduce memory pressure
+RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/backend run build
+RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/orchestrator run build
+RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/frontend run build
+
+# Clean up unnecessary files to reduce image size
+RUN rm -rf /root/.npm /root/.cache /tmp/* || true
 
 # Create uploads directory with correct permissions
 RUN mkdir -p /uploads && chmod 755 /uploads
