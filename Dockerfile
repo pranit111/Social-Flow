@@ -29,8 +29,8 @@ COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/orchestrator/package.json ./apps/orchestrator/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (skip scripts to avoid prisma-generate running before source is copied)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy application source code
 COPY . .
@@ -42,7 +42,7 @@ COPY var/docker/nginx.conf /etc/nginx/nginx.conf
 ARG NEXT_PUBLIC_VERSION
 ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
 
-# Generate Prisma client
+# Generate Prisma client (now that schema file is available)
 RUN pnpm run prisma-generate
 
 # Build all applications
