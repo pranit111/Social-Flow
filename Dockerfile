@@ -24,7 +24,7 @@ RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1 pm2
 WORKDIR /app
 
 # Copy package files first for better caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/orchestrator/package.json ./apps/orchestrator/
