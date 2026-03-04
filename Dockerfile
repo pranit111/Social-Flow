@@ -46,8 +46,9 @@ RUN pnpm --filter ./apps/orchestrator run build && \
 RUN pnpm --filter ./apps/frontend run build && \
     rm -rf /root/.cache /tmp/* || true
 
-# Remove dev dependencies to save space
-RUN pnpm install --prod --ignore-scripts
+# Clean up build caches but preserve node_modules and build artifacts
+RUN find . -name "*.log" -type f -delete && \
+    find . -name ".turbo" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Stage 2: Runtime stage
 FROM node:22.20-bookworm-slim
