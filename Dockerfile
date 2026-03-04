@@ -77,7 +77,7 @@ WORKDIR /app
 COPY --from=builder /app /app
 
 # Rebuild native modules for the runtime environment
-RUN cd /app && pnpm rebuild bcrypt --update-notifier=false
+RUN cd /app && pnpm rebuild bcrypt
 
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
