@@ -1,15 +1,62 @@
 # Production Dockerfile for Postiz
-# Builds frontend, backend, and orchestrator from source
+# Multi-stage build to reduce memory usage and final image size
 
-FROM node:22.20-bookworm-slim AS base
+# Stage 1: Build stage
+FROM node:22.20-bookworm AS builder
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     make \
     python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pnpm
+RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+COPY apps/orchestrator/package.json ./apps/orchestrator/
+
+# Install dependencies with production flag to reduce size
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# Copy source code
+COPY . .
+
+# Build arguments
+ARG NEXT_PUBLIC_VERSION
+ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+
+# Generate Prisma client
+RUN pnpm run prisma-generate
+
+# Build apps with reduced memory settings (suitable for 8GB VPS)
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+RUN pnpm --filter ./apps/backend run build && \
+    rm -rf /root/.cache /tmp/* || true
+
+RUN pnpm --filter ./apps/orchestrator run build && \
+    rm -rf /root/.cache /tmp/* || true
+
+RUN pnpm --filter ./apps/frontend run build && \
+    rm -rf /root/.cache /tmp/* || true
+
+# Remove dev dependencies to save space
+RUN pnpm install --prod --ignore-scripts
+
+# Stage 2: Runtime stage
+FROM node:22.20-bookworm-slim
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     nginx \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup nginx user and directories
@@ -18,40 +65,16 @@ RUN addgroup --system www \
     && mkdir -p /www /uploads \
     && chown -R www:www /www /var/lib/nginx /uploads
 
-# Install pnpm and pm2 globally
+# Install pnpm and pm2
 RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1 pm2
 
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY apps/backend/package.json ./apps/backend/
-COPY apps/frontend/package.json ./apps/frontend/
-COPY apps/orchestrator/package.json ./apps/orchestrator/
-
-# Install dependencies (skip scripts to avoid prisma-generate running before source is copied)
-RUN pnpm install --frozen-lockfile --ignore-scripts
-
-# Copy application source code
-COPY . .
+# Copy built application from builder stage
+COPY --from=builder /app /app
 
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
-
-# Build arguments
-ARG NEXT_PUBLIC_VERSION
-ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
-
-# Generate Prisma client (now that schema file is available)
-RUN pnpm run prisma-generate
-
-# Build applications sequentially to reduce memory pressure
-RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/backend run build
-RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/orchestrator run build
-RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter ./apps/frontend run build
-
-# Clean up unnecessary files to reduce image size
-RUN rm -rf /root/.npm /root/.cache /tmp/* || true
 
 # Create uploads directory with correct permissions
 RUN mkdir -p /uploads && chmod 755 /uploads
