@@ -28,9 +28,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/orchestrator/package.json ./apps/orchestrator/
-COPY libraries/helpers/package.json ./libraries/helpers/ 2>/dev/null || true
-COPY libraries/nestjs-libraries/package.json ./libraries/nestjs-libraries/ 2>/dev/null || true
-COPY libraries/react-shared-libraries/package.json ./libraries/react-shared-libraries/ 2>/dev/null || true
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
