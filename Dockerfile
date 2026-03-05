@@ -22,6 +22,12 @@ COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/orchestrator/package.json ./apps/orchestrator/
 
+# Configure pnpm for better network handling
+RUN pnpm config set fetch-retries 5 && \
+    pnpm config set fetch-retry-mintimeout 20000 && \
+    pnpm config set fetch-retry-maxtimeout 120000 && \
+    pnpm config set fetch-timeout 300000
+
 # Install dependencies with production flag to reduce size
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
