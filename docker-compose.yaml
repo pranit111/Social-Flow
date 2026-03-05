@@ -1,12 +1,12 @@
 services:
   postiz:
-    # Using official pre-built image (solves bcrypt and all build issues)
-    image: ghcr.io/gitroomhq/postiz-app:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    #   args:
-    #     NEXT_PUBLIC_VERSION: ${VERSION:-latest}
+    # Building from local Dockerfile
+    # image: ghcr.io/gitroomhq/postiz-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_VERSION: ${VERSION:-latest}
     container_name: postiz
     restart: always
     environment:

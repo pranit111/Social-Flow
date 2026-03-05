@@ -22,6 +22,9 @@ COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/orchestrator/package.json ./apps/orchestrator/
 
+# Copy source code (needed for prisma-generate)
+COPY . .
+
 # Configure pnpm for better network handling
 RUN pnpm config set fetch-retries 5 && \
     pnpm config set fetch-retry-mintimeout 20000 && \
@@ -30,9 +33,6 @@ RUN pnpm config set fetch-retries 5 && \
 
 # Install dependencies with production flag to reduce size
 RUN pnpm install --frozen-lockfile --ignore-scripts
-
-# Copy source code
-COPY . .
 
 # Build arguments
 ARG NEXT_PUBLIC_VERSION
