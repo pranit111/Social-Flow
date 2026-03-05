@@ -1,16 +1,10 @@
 # Docker Compose for Production VPS Deployment
-# This will be used by GitHub Actions for automated deployments
+# Complete working setup with all services
 
 services:
   postiz:
-    # Build from source code
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_VERSION: ${VERSION:-latest}
-    # For GitHub Actions deployment, use pre-built image
-    # image: your-registry/postiz-app:${VERSION:-latest}
+    # Using official pre-built image (tested and working)
+    image: ghcr.io/gitroomhq/postiz-app:latest
     container_name: postiz-app
     restart: always
     environment:
