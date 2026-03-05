@@ -1,12 +1,12 @@
 services:
   postiz:
-    # Building from local Dockerfile with custom changes
-    # image: ghcr.io/gitroomhq/postiz-app:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_VERSION: ${VERSION:-latest}
+    # Using custom built image from Docker Hub
+    image: pranit731/social-flow:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     NEXT_PUBLIC_VERSION: ${VERSION:-latest}
     container_name: postiz
     restart: always
     environment:
