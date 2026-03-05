@@ -3,12 +3,13 @@
 
 services:
   postiz:
+    # Build from source code
     build:
       context: .
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_VERSION: ${VERSION:-latest}
-    # For GitHub Actions deployment, this will be replaced with pre-built image
+    # For GitHub Actions deployment, use pre-built image
     # image: your-registry/postiz-app:${VERSION:-latest}
     container_name: postiz-app
     restart: always
@@ -88,7 +89,7 @@ services:
       postiz-redis:
         condition: service_healthy
       temporal:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -196,6 +197,12 @@ services:
       - temporal-network
     ports:
       - "${TEMPORAL_PORT:-7233}:7233"
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   temporal-ui:
     image: temporalio/ui:2.34.0
