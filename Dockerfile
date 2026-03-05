@@ -50,7 +50,7 @@ RUN pnpm --filter ./apps/frontend run build && \
 RUN find . -name "*.log" -type f -delete && \
     find . -name ".turbo" -type d -exec rm -rf {} + 2>/dev/null || true
 
-# Stage 2: Runtime stage
+# Stage 2: Runtime stage - Use same base image to avoid native module issues
 FROM node:22.20-bookworm-slim
 
 # Install runtime dependencies including build tools for native modules
@@ -77,11 +77,18 @@ WORKDIR /app
 # Copy built application from builder stage
 COPY --from=builder /app /app
 
-# Rebuild native modules for the runtime environment
-RUN cd /app && pnpm rebuild bcrypt
-
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
+
+# Rebuild ONLY bcrypt for the slim runtime environment
+# This is critical because slim uses different glibc than full bookworm
+RUN cd /app && \
+    rm -rf node_modules/bcrypt/lib/binding && \
+    pnpm rebuild bcrypt
+
+# Copy startup script
+COPY scripts/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Create uploads directory with correct permissions
 RUN mkdir -p /uploads && chmod 755 /uploads
@@ -93,5 +100,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Start nginx and applications with pm2
-CMD ["sh", "-c", "nginx && pnpm run pm2"]
+# Use startup script as entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"]
