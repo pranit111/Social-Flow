@@ -80,8 +80,17 @@ RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1 pm2
 
 WORKDIR /app
 
-# Copy built application from builder stage
-COPY --from=builder /app /app
+# Copy package files first
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc ./
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/
+COPY --from=builder /app/apps/frontend/package.json ./apps/frontend/
+COPY --from=builder /app/apps/orchestrator/package.json ./apps/orchestrator/
+
+# Copy built apps with their build artifacts
+COPY --from=builder /app/apps ./apps
+COPY --from=builder /app/libraries ./libraries
+COPY --from=builder /app/dynamicconfig ./dynamicconfig
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
