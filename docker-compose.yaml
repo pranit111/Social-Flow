@@ -1,6 +1,6 @@
 services:
   postiz:
-    # Building from local Dockerfile
+    # Building from local Dockerfile with custom changes
     # image: ghcr.io/gitroomhq/postiz-app:latest
     build:
       context: .
