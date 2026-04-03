@@ -165,6 +165,16 @@ export class IntegrationService {
     return this._integrationRepository.getIntegrationById(org, id);
   }
 
+  listIntegrationsByProviderAndInternalId(
+    providerIdentifiers: string[],
+    internalId: string
+  ) {
+    return this._integrationRepository.listIntegrationsByProviderAndInternalId(
+      providerIdentifiers,
+      internalId
+    );
+  }
+
   async refreshToken(provider: SocialProvider, refresh: string) {
     try {
       const { refreshToken, accessToken, expiresIn } =

@@ -1,8 +1,10 @@
 import {
   AnalyticsData,
   AuthTokenDetails,
+  LiveCommentsResponse,
   PostDetails,
   PostResponse,
+  ReplyToCommentResponse,
   SocialProvider,
 } from '@gitroom/nestjs-libraries/integrations/social/social.integrations.interface';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
@@ -696,6 +698,64 @@ export class InstagramProvider
         status: 'success',
       },
     ];
+  }
+
+  async fetchLiveComments(
+    mediaId: string,
+    accessToken: string,
+    limit = 25,
+    after?: string,
+    type = 'graph.facebook.com'
+  ): Promise<LiveCommentsResponse> {
+    const cursor = after ? `&after=${encodeURIComponent(after)}` : '';
+    const { data, paging } = await (
+      await this.fetch(
+        `https://${type}/v21.0/${mediaId}/comments?fields=id,text,timestamp,username,parent_id,like_count,replies{id,text,timestamp,username,parent_id,like_count}&limit=${limit}${cursor}&access_token=${accessToken}`
+      )
+    ).json();
+
+    return {
+      comments:
+        data?.map((comment: any) => ({
+          id: comment.id,
+          text: comment.text || '',
+          timestamp: comment.timestamp,
+          username: comment.username || '',
+          parentId: comment.parent_id,
+          likeCount: comment.like_count,
+          replies:
+            comment.replies?.data?.map((reply: any) => ({
+              id: reply.id,
+              text: reply.text || '',
+              timestamp: reply.timestamp,
+              username: reply.username || '',
+              parentId: reply.parent_id,
+              likeCount: reply.like_count,
+            })) || [],
+        })) || [],
+      after: paging?.cursors?.after,
+    };
+  }
+
+  async replyToComment(
+    commentId: string,
+    message: string,
+    accessToken: string,
+    _integration: Integration,
+    type = 'graph.facebook.com'
+  ): Promise<ReplyToCommentResponse> {
+    const { id } = await (
+      await this.fetch(
+        `https://${type}/v21.0/${commentId}/replies?message=${encodeURIComponent(
+          message
+        )}&access_token=${accessToken}`,
+        {
+          method: 'POST',
+        }
+      )
+    ).json();
+
+    return { id };
   }
 
   private setTitle(name: string) {

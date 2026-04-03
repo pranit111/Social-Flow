@@ -33,6 +33,8 @@ import { ThirdPartyController } from '@gitroom/backend/api/routes/third-party.co
 import { MonitorController } from '@gitroom/backend/api/routes/monitor.controller';
 import { NoAuthIntegrationsController } from '@gitroom/backend/api/routes/no.auth.integrations.controller';
 import { EnterpriseController } from '@gitroom/backend/api/routes/enterprise.controller';
+import { InstagramCommentsController } from '@gitroom/backend/api/routes/instagram-comments.controller';
+import { NoAuthInstagramWebhooksController } from '@gitroom/backend/api/routes/no.auth.instagram.webhooks.controller';
 
 const authenticatedController = [
   UsersController,
@@ -49,6 +51,7 @@ const authenticatedController = [
   AutopostController,
   SetsController,
   ThirdPartyController,
+  InstagramCommentsController,
 ];
 @Module({
   imports: [UploadModule],
@@ -60,6 +63,7 @@ const authenticatedController = [
     MonitorController,
     EnterpriseController,
     NoAuthIntegrationsController,
+    NoAuthInstagramWebhooksController,
     ...authenticatedController,
   ],
   providers: [

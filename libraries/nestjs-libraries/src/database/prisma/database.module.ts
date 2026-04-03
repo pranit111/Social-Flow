@@ -36,6 +36,8 @@ import { ThirdPartyService } from '@gitroom/nestjs-libraries/database/prisma/thi
 import { VideoManager } from '@gitroom/nestjs-libraries/videos/video.manager';
 import { FalService } from '@gitroom/nestjs-libraries/openai/fal.service';
 import { RefreshIntegrationService } from '@gitroom/nestjs-libraries/integrations/refresh.integration.service';
+import { IncomingCommentsProxyRepository } from '@gitroom/nestjs-libraries/database/prisma/incoming-comments-proxy/incoming-comments-proxy.repository';
+import { IncomingCommentsProxyService } from '@gitroom/nestjs-libraries/database/prisma/incoming-comments-proxy/incoming-comments-proxy.service';
 
 @Global()
 @Module({
@@ -81,6 +83,8 @@ import { RefreshIntegrationService } from '@gitroom/nestjs-libraries/integration
     ThirdPartyRepository,
     ThirdPartyService,
     VideoManager,
+    IncomingCommentsProxyRepository,
+    IncomingCommentsProxyService,
   ],
   get exports() {
     return this.providers;
