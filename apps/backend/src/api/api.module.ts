@@ -43,6 +43,8 @@ import { GoogleProvider } from '@gitroom/backend/services/auth/providers/google.
 import { FarcasterProvider } from '@gitroom/backend/services/auth/providers/farcaster.provider';
 import { WalletProvider } from '@gitroom/backend/services/auth/providers/wallet.provider';
 import { OauthProvider } from '@gitroom/backend/services/auth/providers/oauth.provider';
+import { InstagramCommentsController } from '@gitroom/backend/api/routes/instagram-comments.controller';
+import { NoAuthInstagramWebhooksController } from '@gitroom/backend/api/routes/no.auth.instagram.webhooks.controller';
 
 const authenticatedController = [
   UsersController,
@@ -63,6 +65,7 @@ const authenticatedController = [
   ApprovedAppsController,
   OAuthAuthorizedController,
   AnnouncementsController,
+  InstagramCommentsController,
 ];
 @Module({
   imports: [UploadModule],
@@ -75,6 +78,7 @@ const authenticatedController = [
     EnterpriseController,
     NoAuthIntegrationsController,
     OAuthController,
+    NoAuthInstagramWebhooksController,
     ...authenticatedController,
   ],
   providers: [

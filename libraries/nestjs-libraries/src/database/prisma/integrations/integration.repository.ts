@@ -383,6 +383,21 @@ export class IntegrationRepository {
     });
   }
 
+  listIntegrationsByProviderAndInternalId(
+    providerIdentifiers: string[],
+    internalId: string
+  ) {
+    return this._integration.model.integration.findMany({
+      where: {
+        providerIdentifier: {
+          in: providerIdentifiers,
+        },
+        internalId,
+        deletedAt: null,
+      },
+    });
+  }
+
   async getIntegrationForOrder(
     id: string,
     order: string,

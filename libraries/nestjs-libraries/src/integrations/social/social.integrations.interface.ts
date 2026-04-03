@@ -56,6 +56,34 @@ export interface AnalyticsData {
   percentageChange: number;
 }
 
+export type IncomingCommentItem = {
+  externalPostId: string;
+  externalCommentId: string;
+  authorName: string;
+  authorHandle: string;
+  content: string;
+  createdAt: Date;
+};
+
+export type LiveIncomingComment = {
+  id: string;
+  text: string;
+  timestamp: string;
+  username: string;
+  parentId?: string;
+  likeCount?: number;
+  replies?: LiveIncomingComment[];
+};
+
+export type LiveCommentsResponse = {
+  comments: LiveIncomingComment[];
+  after?: string;
+};
+
+export type ReplyToCommentResponse = {
+  id: string;
+};
+
 
 export type GenerateAuthUrlResponse = {
   url: string;
@@ -179,4 +207,21 @@ export interface SocialProvider
     accessToken: string,
     data: any
   ): Promise<FetchPageInformationResult>;
+  fetchComments?(
+    postId: string,
+    accessToken: string,
+    integration: Integration
+  ): Promise<IncomingCommentItem[]>;
+  fetchLiveComments?(
+    mediaId: string,
+    accessToken: string,
+    limit?: number,
+    after?: string
+  ): Promise<LiveCommentsResponse>;
+  replyToComment?(
+    commentId: string,
+    message: string,
+    accessToken: string,
+    integration: Integration
+  ): Promise<ReplyToCommentResponse>;
 }
