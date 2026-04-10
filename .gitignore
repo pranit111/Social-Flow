@@ -8,7 +8,7 @@ tmp
 .e
 # dependencies
 node_modules
-
+.env_c
 # IDEs and editors
 /.idea
 .project
