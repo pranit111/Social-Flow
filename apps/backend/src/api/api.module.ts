@@ -30,10 +30,9 @@ import { SignatureController } from '@gitroom/backend/api/routes/signature.contr
 import { AutopostController } from '@gitroom/backend/api/routes/autopost.controller';
 import { SetsController } from '@gitroom/backend/api/routes/sets.controller';
 import { ThirdPartyController } from '@gitroom/backend/api/routes/third-party.controller';
-import { MonitorController } from '@gitroom/backend/api/routes/monitor.controller';
+import { MonitorController, HealthController } from '@gitroom/backend/api/routes/monitor.controller';
 import { NoAuthIntegrationsController } from '@gitroom/backend/api/routes/no.auth.integrations.controller';
 import { EnterpriseController } from '@gitroom/backend/api/routes/enterprise.controller';
-import { InstagramCommentsController } from '@gitroom/backend/api/routes/instagram-comments.controller';
 import { NoAuthInstagramWebhooksController } from '@gitroom/backend/api/routes/no.auth.instagram.webhooks.controller';
 
 const authenticatedController = [
@@ -51,7 +50,6 @@ const authenticatedController = [
   AutopostController,
   SetsController,
   ThirdPartyController,
-  InstagramCommentsController,
 ];
 @Module({
   imports: [UploadModule],
@@ -61,6 +59,7 @@ const authenticatedController = [
     AuthController,
     PublicController,
     MonitorController,
+    HealthController,
     EnterpriseController,
     NoAuthIntegrationsController,
     NoAuthInstagramWebhooksController,

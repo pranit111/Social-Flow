@@ -37,6 +37,14 @@ export class PostsController {
     private _shortLinkService: ShortLinkService
   ) {}
 
+  @Get('/:id/comments')
+  async getPostComments(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string
+  ) {
+    return this._postsService.getPostComments(id, org.id);
+  }
+
   @Get('/:id/statistics')
   async getStatistics(
     @GetOrgFromRequest() org: Organization,

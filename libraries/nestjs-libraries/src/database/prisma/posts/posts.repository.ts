@@ -848,6 +848,25 @@ export class PostsRepository {
     });
   }
 
+  incrementCommentsCount(releaseId: string) {
+    return this._post.model.post.updateMany({
+      where: { releaseId, deletedAt: null },
+      data: { commentsCount: { increment: 1 } },
+    });
+  }
+
+  getPostWithIntegration(id: string, orgId: string) {
+    return this._post.model.post.findFirst({
+      where: { id, organizationId: orgId, deletedAt: null },
+      select: {
+        releaseId: true,
+        integration: {
+          select: { token: true, providerIdentifier: true, id: true },
+        },
+      },
+    });
+  }
+
   async getPostsSince(orgId: string, since: string) {
     return this._post.model.post.findMany({
       where: {

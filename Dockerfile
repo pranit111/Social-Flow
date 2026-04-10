@@ -41,6 +41,9 @@ ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
 # Generate Prisma client
 RUN pnpm run prisma-generate
 
+# Build bcrypt native binding in the builder stage (has network access)
+RUN pnpm rebuild bcrypt
+
 # Build apps with reduced memory settings (suitable for 8GB VPS)
 ENV NODE_OPTIONS="--max-old-space-size=3072"
 RUN pnpm --filter ./apps/backend run build && \
@@ -94,12 +97,6 @@ COPY --from=builder /app/node_modules ./node_modules
 
 # Copy nginx configuration
 COPY var/docker/nginx.conf /etc/nginx/nginx.conf
-
-# Rebuild ONLY bcrypt for the slim runtime environment
-# This is critical because slim uses different glibc than full bookworm
-RUN cd /app && \
-    rm -rf node_modules/bcrypt/lib/binding && \
-    pnpm rebuild bcrypt
 
 # Copy startup script
 COPY scripts/docker-entrypoint.sh /docker-entrypoint.sh

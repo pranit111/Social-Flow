@@ -2,6 +2,7 @@ import {
   AnalyticsData,
   AuthTokenDetails,
   LiveCommentsResponse,
+  PostCommentsResponse,
   PostDetails,
   PostResponse,
   ReplyToCommentResponse,
@@ -698,6 +699,28 @@ export class InstagramProvider
         status: 'success',
       },
     ];
+  }
+
+  async fetchComments(
+    releaseId: string,
+    accessToken: string,
+    _integration: Integration,
+    type = 'graph.facebook.com'
+  ): Promise<PostCommentsResponse> {
+    const { data } = await (
+      await this.fetch(
+        `https://${type}/v21.0/${releaseId}/comments?fields=id,text,username,timestamp&access_token=${accessToken}`
+      )
+    ).json();
+
+    return {
+      comments: (data || []).map((c: any) => ({
+        id: c.id,
+        text: c.text || '',
+        username: c.username || '',
+        timestamp: c.timestamp || '',
+      })),
+    };
   }
 
   async fetchLiveComments(

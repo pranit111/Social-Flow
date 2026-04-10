@@ -41,7 +41,6 @@ model Organization {
   usedCodes         UsedCodes[]
   users             UserOrganization[]
   webhooks          Webhooks[]
-
   @@index([apiKey])
   @@index([streakSince])
   @@index([paymentId])
@@ -411,6 +410,7 @@ model Post {
   createdAt                  DateTime                  @default(now())
   updatedAt                  DateTime                  @updatedAt
   deletedAt                  DateTime?
+  commentsCount              Int                       @default(0)
   comments                   Comments[]
   errors                     Errors[]
   payoutProblems             PayoutProblems[]
@@ -835,6 +835,7 @@ model mastra_workflow_snapshot {
 
   @@unique([workflow_name, run_id], map: "public_mastra_workflow_snapshot_workflow_name_run_id_key")
 }
+
 
 enum OrderStatus {
   PENDING

@@ -1,7 +1,7 @@
 services:
   postiz:
     # Using custom built image from Docker Hub
-    image: pranit731/social-flow:latest
+    image: pranit731/social-flow:Comment
     # build:
     #   context: .
     #   dockerfile: Dockerfile
@@ -38,6 +38,9 @@ services:
       # === Social Media API Settings
       X_API_KEY: ${X_API_KEY:-}
       X_API_SECRET: ${X_API_SECRET:-}
+      INSTAGRAM_APP_ID: ${INSTAGRAM_APP_ID:-}
+      INSTAGRAM_APP_SECRET: ${INSTAGRAM_APP_SECRET:-}
+      INSTAGRAM_WEBHOOK_VERIFY_TOKEN: ${INSTAGRAM_WEBHOOK_VERIFY_TOKEN:-}
       LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
       LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
       REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
