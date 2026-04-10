@@ -40,7 +40,6 @@ import { OAuthRepository } from '@gitroom/nestjs-libraries/database/prisma/oauth
 import { OAuthService } from '@gitroom/nestjs-libraries/database/prisma/oauth/oauth.service';
 import { AnnouncementsRepository } from '@gitroom/nestjs-libraries/database/prisma/announcements/announcements.repository';
 import { AnnouncementsService } from '@gitroom/nestjs-libraries/database/prisma/announcements/announcements.service';
-import { IncomingCommentsProxyRepository } from '@gitroom/nestjs-libraries/database/prisma/incoming-comments-proxy/incoming-comments-proxy.repository';
 import { IncomingCommentsProxyService } from '@gitroom/nestjs-libraries/database/prisma/incoming-comments-proxy/incoming-comments-proxy.service';
 
 @Global()
@@ -91,7 +90,6 @@ import { IncomingCommentsProxyService } from '@gitroom/nestjs-libraries/database
     VideoManager,
     AnnouncementsRepository,
     AnnouncementsService,
-    IncomingCommentsProxyRepository,
     IncomingCommentsProxyService,
   ],
   get exports() {

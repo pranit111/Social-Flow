@@ -56,13 +56,16 @@ export interface AnalyticsData {
   percentageChange: number;
 }
 
-export type IncomingCommentItem = {
-  externalPostId: string;
-  externalCommentId: string;
-  authorName: string;
-  authorHandle: string;
-  content: string;
-  createdAt: Date;
+
+export type PostComment = {
+  id: string;
+  text: string;
+  username: string;
+  timestamp: string;
+};
+
+export type PostCommentsResponse = {
+  comments: PostComment[];
 };
 
 export type LiveIncomingComment = {
@@ -208,10 +211,10 @@ export interface SocialProvider
     data: any
   ): Promise<FetchPageInformationResult>;
   fetchComments?(
-    postId: string,
+    releaseId: string,
     accessToken: string,
     integration: Integration
-  ): Promise<IncomingCommentItem[]>;
+  ): Promise<PostCommentsResponse>;
   fetchLiveComments?(
     mediaId: string,
     accessToken: string,

@@ -140,6 +140,15 @@ export class PublicIntegrationsController {
     return { date: await this._postsService.findFreeDateTime(org.id, id) };
   }
 
+  @Get('/posts/:id/comments')
+  async getPostComments(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string
+  ) {
+    Sentry.metrics.count('public_api-request', 1);
+    return this._postsService.getPostComments(id, org.id);
+  }
+
   @Get('/posts')
   async getPosts(
     @GetOrgFromRequest() org: Organization,
@@ -400,6 +409,55 @@ export class PublicIntegrationsController {
   ) {
     Sentry.metrics.count('public_api-request', 1);
     return this._postsService.checkPostAnalytics(org.id, postId, +date);
+  }
+
+  @Get('/oauth/:integration')
+  async getOAuthUrl(
+    @GetOrgFromRequest() org: Organization,
+    @Param('integration') integration: string,
+    @Query('externalUrl') externalUrl: string
+  ) {
+    Sentry.metrics.count('public_api-request', 1);
+
+    if (
+      !this._integrationManager
+        .getAllowedSocialsIntegrations()
+        .includes(integration)
+    ) {
+      throw new HttpException({ msg: 'Integration not allowed' }, 400);
+    }
+
+    const integrationProvider =
+      this._integrationManager.getSocialIntegration(integration);
+
+    if (integrationProvider.externalUrl && !externalUrl) {
+      throw new HttpException({ msg: 'Missing externalUrl query param' }, 400);
+    }
+
+    try {
+      const getExternalUrl = integrationProvider.externalUrl
+        ? {
+            ...(await integrationProvider.externalUrl(externalUrl)),
+            instanceUrl: externalUrl,
+          }
+        : undefined;
+
+      const { codeVerifier, state, url } =
+        await integrationProvider.generateAuthUrl(getExternalUrl);
+
+      await ioRedis.set(`organization:${state}`, org.id, 'EX', 3600);
+      await ioRedis.set(`login:${state}`, codeVerifier, 'EX', 3600);
+      await ioRedis.set(
+        `external:${state}`,
+        JSON.stringify(getExternalUrl),
+        'EX',
+        3600
+      );
+
+      return { url };
+    } catch (err) {
+      throw new HttpException({ msg: 'Failed to generate OAuth URL' }, 500);
+    }
   }
 
   @Post('/integration-trigger/:id')

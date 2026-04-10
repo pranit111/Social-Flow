@@ -30,7 +30,7 @@ import { SignatureController } from '@gitroom/backend/api/routes/signature.contr
 import { AutopostController } from '@gitroom/backend/api/routes/autopost.controller';
 import { SetsController } from '@gitroom/backend/api/routes/sets.controller';
 import { ThirdPartyController } from '@gitroom/backend/api/routes/third-party.controller';
-import { MonitorController } from '@gitroom/backend/api/routes/monitor.controller';
+import { MonitorController, HealthController } from '@gitroom/backend/api/routes/monitor.controller';
 import { NoAuthIntegrationsController } from '@gitroom/backend/api/routes/no.auth.integrations.controller';
 import { EnterpriseController } from '@gitroom/backend/api/routes/enterprise.controller';
 import { OAuthAppController } from '@gitroom/backend/api/routes/oauth-app.controller';
@@ -43,7 +43,6 @@ import { GoogleProvider } from '@gitroom/backend/services/auth/providers/google.
 import { FarcasterProvider } from '@gitroom/backend/services/auth/providers/farcaster.provider';
 import { WalletProvider } from '@gitroom/backend/services/auth/providers/wallet.provider';
 import { OauthProvider } from '@gitroom/backend/services/auth/providers/oauth.provider';
-import { InstagramCommentsController } from '@gitroom/backend/api/routes/instagram-comments.controller';
 import { NoAuthInstagramWebhooksController } from '@gitroom/backend/api/routes/no.auth.instagram.webhooks.controller';
 
 const authenticatedController = [
@@ -61,10 +60,6 @@ const authenticatedController = [
   AutopostController,
   SetsController,
   ThirdPartyController,
-  OAuthAppController,
-  ApprovedAppsController,
-  OAuthAuthorizedController,
-  AnnouncementsController,
   InstagramCommentsController,
 ];
 @Module({
@@ -75,6 +70,7 @@ const authenticatedController = [
     AuthController,
     PublicController,
     MonitorController,
+    HealthController,
     EnterpriseController,
     NoAuthIntegrationsController,
     OAuthController,
