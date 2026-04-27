@@ -349,7 +349,8 @@ export class LinkedinPageProvider
       (all, current) => {
         if (
           typeof current?.totalPageStatistics?.views?.allPageViews
-            ?.pageViews !== 'undefined'
+            ?.pageViews !== 'undefined' &&
+          current?.timeRange
         ) {
           all['Page Views'].push({
             total: current.totalPageStatistics.views.allPageViews.pageViews,
@@ -358,7 +359,8 @@ export class LinkedinPageProvider
         }
 
         if (
-          typeof current?.followerGains?.organicFollowerGain !== 'undefined'
+          typeof current?.followerGains?.organicFollowerGain !== 'undefined' &&
+          current?.timeRange
         ) {
           all['Organic Followers'].push({
             total: current?.followerGains?.organicFollowerGain,
@@ -366,14 +368,20 @@ export class LinkedinPageProvider
           });
         }
 
-        if (typeof current?.followerGains?.paidFollowerGain !== 'undefined') {
+        if (
+          typeof current?.followerGains?.paidFollowerGain !== 'undefined' &&
+          current?.timeRange
+        ) {
           all['Paid Followers'].push({
             total: current?.followerGains?.paidFollowerGain,
             date: dayjs(current.timeRange.start).format('YYYY-MM-DD'),
           });
         }
 
-        if (typeof current?.totalShareStatistics !== 'undefined') {
+        if (
+          typeof current?.totalShareStatistics !== 'undefined' &&
+          current?.timeRange
+        ) {
           all['Clicks'].push({
             total: current?.totalShareStatistics.clickCount,
             date: dayjs(current.timeRange.start).format('YYYY-MM-DD'),
@@ -464,7 +472,10 @@ export class LinkedinPageProvider
     // Process share statistics into time series data
     const analytics = (shareElements || []).reduce(
       (all, current) => {
-        if (typeof current?.totalShareStatistics !== 'undefined') {
+        if (
+          typeof current?.totalShareStatistics !== 'undefined' &&
+          current?.timeRange
+        ) {
           const dateStr = dayjs(current.timeRange.start).format('YYYY-MM-DD');
 
           all['Impressions'].push({

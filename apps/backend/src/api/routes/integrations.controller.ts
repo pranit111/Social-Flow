@@ -233,6 +233,11 @@ export class IntegrationsController {
 
       return { url };
     } catch (err) {
+      console.error('[OAuth] Failed to generate auth URL for integration:', integration, {
+        message: (err as Error)?.message,
+        stack: (err as Error)?.stack,
+        err,
+      });
       return { err: true };
     }
   }
