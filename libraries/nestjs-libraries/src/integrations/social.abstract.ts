@@ -79,6 +79,7 @@ export abstract class SocialAbstract {
     try {
       value = await func();
     } catch (err) {
+      console.error('[social.abstract] runInConcurrent error:', safeStringify(err));
       const handle = this.handleErrors(safeStringify(err), 200);
       value = { err: true, value: 'Unknown Error', ...(handle || {}) };
     }
@@ -164,6 +165,9 @@ export abstract class SocialAbstract {
       );
     }
 
+    console.error(
+      `[social.abstract] BadBody [${identifier}] status=${request.status} response=${json} body=${options.body}`
+    );
     throw new BadBody(
       identifier,
       json,
