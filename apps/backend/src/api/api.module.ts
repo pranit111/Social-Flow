@@ -60,7 +60,6 @@ const authenticatedController = [
   AutopostController,
   SetsController,
   ThirdPartyController,
-  InstagramCommentsController,
 ];
 @Module({
   imports: [UploadModule],
