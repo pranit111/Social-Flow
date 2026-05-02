@@ -8,6 +8,7 @@ export class XDto {
   })
   community?: string;
 
+  @IsOptional()
   @IsIn(['everyone', 'following', 'mentionedUsers', 'subscribers', 'verified'])
   who_can_reply_post:
     | 'everyone'

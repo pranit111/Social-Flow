@@ -1,6 +1,12 @@
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:latest
+    # Using custom built image from Docker Hub
+    image: pranit731/social-flow:merger
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     NEXT_PUBLIC_VERSION: ${VERSION:-latest}
     container_name: postiz
     restart: always
     environment:
@@ -31,61 +37,29 @@ services:
       # CLOUDFLARE_REGION: 'auto'
 
       # === Social Media API Settings
-      X_URL: ''
-      X_API_KEY: ''
-      X_API_SECRET: ''
-      LINKEDIN_CLIENT_ID: ''
-      LINKEDIN_CLIENT_SECRET: ''
-      REDDIT_CLIENT_ID: ''
-      REDDIT_CLIENT_SECRET: ''
-      GITHUB_CLIENT_ID: ''
-      GITHUB_CLIENT_SECRET: ''
-      BEEHIIVE_API_KEY: ''
-      BEEHIIVE_PUBLICATION_ID: ''
-      THREADS_APP_ID: ''
-      THREADS_APP_SECRET: ''
-      FACEBOOK_APP_ID: ''
-      FACEBOOK_APP_SECRET: ''
-      YOUTUBE_CLIENT_ID: ''
-      YOUTUBE_CLIENT_SECRET: ''
-      TIKTOK_CLIENT_ID: ''
-      TIKTOK_CLIENT_SECRET: ''
-      PINTEREST_CLIENT_ID: ''
-      PINTEREST_CLIENT_SECRET: ''
-      DRIBBBLE_CLIENT_ID: ''
-      DRIBBBLE_CLIENT_SECRET: ''
-      DISCORD_CLIENT_ID: ''
-      DISCORD_CLIENT_SECRET: ''
-      DISCORD_BOT_TOKEN_ID: ''
-      SLACK_ID: ''
-      SLACK_SECRET: ''
-      SLACK_SIGNING_SECRET: ''
-      MASTODON_URL: 'https://mastodon.social'
-      MASTODON_CLIENT_ID: ''
-      MASTODON_CLIENT_SECRET: ''
-
-      # === OAuth & Authentik Settings
-      # NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME: 'Authentik'
-      # NEXT_PUBLIC_POSTIZ_OAUTH_LOGO_URL: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/master/png/authentik.png'
-      # POSTIZ_GENERIC_OAUTH: 'false'
-      # POSTIZ_OAUTH_URL: 'https://auth.example.com'
-      # POSTIZ_OAUTH_AUTH_URL: 'https://auth.example.com/application/o/authorize'
-      # POSTIZ_OAUTH_TOKEN_URL: 'https://auth.example.com/application/o/token'
-      # POSTIZ_OAUTH_USERINFO_URL: 'https://authentik.example.com/application/o/userinfo'
-      # POSTIZ_OAUTH_CLIENT_ID: ''
-      # POSTIZ_OAUTH_CLIENT_SECRET: ''
-      # POSTIZ_OAUTH_SCOPE: "openid profile email"  # Optional: uncomment to override default scope
-
-      # === Sentry
-
-      # NEXT_PUBLIC_SENTRY_DSN: 'http://spotlight:8969/stream'
-      # SENTRY_SPOTLIGHT: '1'
-
-      # === Misc Settings
-      OPENAI_API_KEY: ''
-      NEXT_PUBLIC_DISCORD_SUPPORT: ''
-      NEXT_PUBLIC_POLOTNO: ''
-      API_LIMIT: 30
+      X_API_KEY: ${X_API_KEY:-}
+      X_API_SECRET: ${X_API_SECRET:-}
+      LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
+      LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      THREADS_APP_ID: ${THREADS_APP_ID:-}
+      THREADS_APP_SECRET: ${THREADS_APP_SECRET:-}
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
+      YOUTUBE_CLIENT_ID: ${YOUTUBE_CLIENT_ID:-}
+      YOUTUBE_CLIENT_SECRET: ${YOUTUBE_CLIENT_SECRET:-}
+      TIKTOK_CLIENT_ID: ${TIKTOK_CLIENT_ID:-}
+      TIKTOK_CLIENT_SECRET: ${TIKTOK_CLIENT_SECRET:-}
+      PINTEREST_CLIENT_ID: ${PINTEREST_CLIENT_ID:-}
+      PINTEREST_CLIENT_SECRET: ${PINTEREST_CLIENT_SECRET:-}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      SLACK_ID: ${SLACK_ID:-}
+      SLACK_SECRET: ${SLACK_SECRET:-}
+      MASTODON_URL: ${MASTODON_URL:-https://mastodon.social}
 
       # === Payment / Stripe Settings
       FEE_AMOUNT: 0.05

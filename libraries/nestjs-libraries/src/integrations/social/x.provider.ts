@@ -250,25 +250,52 @@ export class XProvider extends SocialAbstract implements SocialProvider {
   }
 
   async generateAuthUrl() {
-    const client = new TwitterApi({
-      appKey: process.env.X_API_KEY!,
-      appSecret: process.env.X_API_SECRET!,
+    const appKey = process.env.X_API_KEY;
+    const appSecret = process.env.X_API_SECRET;
+    const callbackUrl =
+      (process.env.X_URL || process.env.FRONTEND_URL) +
+      `/integrations/social/x`;
+
+    console.log('[X OAuth] generateAuthUrl called', {
+      hasAppKey: !!appKey,
+      hasAppSecret: !!appSecret,
+      callbackUrl,
     });
-    const { url, oauth_token, oauth_token_secret } =
-      await client.generateAuthLink(
-        (process.env.X_URL || process.env.FRONTEND_URL) +
-          `/integrations/social/x`,
-        {
+
+    if (!appKey || !appSecret) {
+      console.error(
+        '[X OAuth] Missing X_API_KEY or X_API_SECRET environment variables'
+      );
+      throw new Error('X API credentials are not configured');
+    }
+
+    try {
+      const client = new TwitterApi({ appKey, appSecret });
+      const { url, oauth_token, oauth_token_secret } =
+        await client.generateAuthLink(callbackUrl, {
           authAccessType: 'write',
           linkMode: 'authenticate',
           forceLogin: false,
-        }
-      );
-    return {
-      url,
-      codeVerifier: oauth_token + ':' + oauth_token_secret,
-      state: oauth_token,
-    };
+        });
+
+      console.log('[X OAuth] Auth URL generated successfully', {
+        hasOauthToken: !!oauth_token,
+      });
+
+      return {
+        url,
+        codeVerifier: oauth_token + ':' + oauth_token_secret,
+        state: oauth_token,
+      };
+    } catch (err) {
+      console.error('[X OAuth] Failed to generate auth URL', {
+        error: err instanceof Error ? err.message : err,
+        stack: err instanceof Error ? err.stack : undefined,
+        data: (err as any)?.data,
+        code: (err as any)?.code,
+      });
+      throw err;
+    }
   }
 
   async authenticate(params: { code: string; codeVerifier: string }) {

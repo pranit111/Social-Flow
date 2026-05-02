@@ -1008,4 +1008,29 @@ export class PostsService {
   ) {
     return this._postRepository.createComment(orgId, userId, postId, comment);
   }
+
+  incrementCommentsCount(releaseId: string) {
+    return this._postRepository.incrementCommentsCount(releaseId);
+  }
+
+  async getPostComments(postId: string, orgId: string) {
+    const post = await this._postRepository.getPostWithIntegration(postId, orgId);
+    if (!post || !post.releaseId || !post.integration?.token) {
+      return { comments: [] };
+    }
+
+    const provider = this._integrationManager.getSocialIntegration(
+      post.integration.providerIdentifier
+    );
+
+    if (!provider?.fetchComments) {
+      return { comments: [] };
+    }
+
+    return provider.fetchComments(
+      post.releaseId,
+      post.integration.token,
+      post.integration as any
+    );
+  }
 }

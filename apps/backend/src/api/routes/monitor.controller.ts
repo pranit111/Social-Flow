@@ -12,3 +12,11 @@ export class MonitorController {
     };
   }
 }
+
+@Controller('/')
+export class HealthController {
+  @Get('/health')
+  health() {
+    return { status: 'ok' };
+  }
+}
