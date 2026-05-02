@@ -1,7 +1,7 @@
 services:
   postiz:
     # Using custom built image from Docker Hub
-    image: pranit731/social-flow:latest
+    image: pranit731/social-flow:merger
     # build:
     #   context: .
     #   dockerfile: Dockerfile
