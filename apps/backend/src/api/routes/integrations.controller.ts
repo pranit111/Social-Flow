@@ -27,7 +27,6 @@ import {
 } from '@gitroom/nestjs-libraries/integrations/social.abstract';
 
 import { timer } from '@gitroom/helpers/utils/timer';
-import { TelegramProvider } from '@gitroom/nestjs-libraries/integrations/social/telegram.provider';
 import { MoltbookProvider } from '@gitroom/nestjs-libraries/integrations/social/moltbook.provider';
 import {
   AuthorizationActions,
@@ -467,11 +466,6 @@ export class IntegrationsController {
     @Body('status') status: boolean
   ) {
     return this._integrationService.changePlugActivation(org.id, id, status);
-  }
-
-  @Get('/telegram/updates')
-  async getUpdates(@Query() query: { word: string; id?: number }) {
-    return new TelegramProvider().getBotId(query);
   }
 
   @Post('/moltbook/register')

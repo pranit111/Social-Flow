@@ -198,8 +198,6 @@ checksums:
     save_as_draft: b1b38812110113627d141db981fb1b12
     post_now: 47b412c230a3bdfbd41f1f4092c2e743
     please_add: 72e7771d1362b9aa1b02b2821f73f035
-    to_your_telegram_group_channel_and_click_here: 7e24ad4b10c176d1b4b2571c02dd1c17
-    connect_telegram: 9bd23c05b468f59d2674a9b378d3fb15
     please_add_the_following_command_in_your_chat: 91cf09291659b1293786f0cf5ac50408
     copy: 627c00d2c850b9b45f7341a6ac01b6bb
     settings: 8df6777277469c1fd88cc18dde2f1cc3
@@ -366,7 +364,6 @@ checksums:
     top_title_instance_url: 743ab33cd9b20bc08286d188f20bebb0
     top_title_custom_url: f1e4e1c6a386d212abe94b937cf5e812
     top_title_add_channel: 4645280ffa9b0bc5250f89df13184ec2
-    top_title_add_telegram: 8cecdbb4f34a94aa09f23a924f8ab44a
     top_title_add_wrapcast: 3b299b855023264e4ee15a387ffb913e
     top_title_comments_for: 0945b5c127d29c7cfcbf8402d05b110a
     top_title_edit_signature: 9f72c4b124f37d01ea1b8f7ec45414d8

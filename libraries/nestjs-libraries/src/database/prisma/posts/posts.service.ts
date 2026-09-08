@@ -72,7 +72,7 @@ export class PostsService {
     private _openaiService: OpenaiService,
     private _temporalService: TemporalService,
     private _refreshIntegrationService: RefreshIntegrationService
-  ) {}
+  ) { }
 
   searchForMissingThreeHoursPosts() {
     return this._postRepository.searchForMissingThreeHoursPosts();
@@ -317,11 +317,11 @@ export class PostsService {
       post!,
       ...(post?.childrenPost?.length
         ? await this.getPostsRecursively(
-            post?.childrenPost?.[0]?.id,
-            false,
-            orgId,
-            false
-          )
+          post?.childrenPost?.[0]?.id,
+          false,
+          orgId,
+          false
+        )
         : []),
     ];
   }
@@ -364,9 +364,9 @@ export class PostsService {
               url:
                 m.path.indexOf('http') === -1
                   ? process.env.FRONTEND_URL +
-                    '/' +
-                    process.env.NEXT_PUBLIC_UPLOAD_STATIC_DIRECTORY +
-                    m.path
+                  '/' +
+                  process.env.NEXT_PUBLIC_UPLOAD_STATIC_DIRECTORY +
+                  m.path
                   : m.path,
               type: 'image',
               path:
@@ -412,9 +412,9 @@ export class PostsService {
                 url:
                   path.indexOf('http') === -1
                     ? process.env.FRONTEND_URL +
-                      '/' +
-                      process.env.NEXT_PUBLIC_UPLOAD_STATIC_DIRECTORY +
-                      path
+                    '/' +
+                    process.env.NEXT_PUBLIC_UPLOAD_STATIC_DIRECTORY +
+                    path
                     : path,
                 type: 'image',
                 path:
@@ -676,9 +676,9 @@ export class PostsService {
             ) {
               await workflow.terminate();
             }
-          } catch (err) {}
+          } catch (err) { }
         }
-      } catch (err) {}
+      } catch (err) { }
     }
 
     return { error: true };
@@ -716,9 +716,9 @@ export class PostsService {
           ) {
             await workflow.terminate();
           }
-        } catch (err) {}
+        } catch (err) { }
       }
-    } catch (err) {}
+    } catch (err) { }
 
     if (state === 'DRAFT') {
       return;
@@ -749,7 +749,7 @@ export class PostsService {
             },
           ]),
         });
-    } catch (err) {}
+    } catch (err) { }
   }
 
   /**
@@ -891,8 +891,7 @@ export class PostsService {
     throw new BadRequestException(
       `This post was already published on ${dayjs
         .utc(post.publishDate)
-        .format('YYYY-MM-DD HH:mm')} UTC. Saving it this way would publish it again to ${
-        post.integration?.providerIdentifier || 'the channel'
+        .format('YYYY-MM-DD HH:mm')} UTC. Saving it this way would publish it again to ${post.integration?.providerIdentifier || 'the channel'
       }. To edit without republishing, ${howToUpdate}. To intentionally publish again, pass republish: true.`
     );
   }
@@ -926,9 +925,9 @@ export class PostsService {
         !body.shortLink || removeLinks
           ? messages
           : await this._shortLinkService.convertTextToShortLinks(
-              orgId,
-              messages
-            );
+            orgId,
+            messages
+          );
 
       post.value = (post.value || []).map((p, i) => ({
         ...p,
@@ -956,7 +955,7 @@ export class PostsService {
           posts[0].id,
           orgId,
           posts[0].state
-        ).catch((err) => {});
+        ).catch((err) => { });
       }
 
       Sentry.metrics.count('post_created', 1);
@@ -1031,7 +1030,7 @@ export class PostsService {
       let image = [];
       try {
         image = JSON.parse(p.image || '[]');
-      } catch (err) {}
+      } catch (err) { }
       return {
         id: p.id,
         content: p.content,
@@ -1058,8 +1057,7 @@ export class PostsService {
     if (root.state !== 'DRAFT') {
       if (!validation.valid) {
         throw new BadRequestException(
-          `${validation.name}: ${
-            validation.settingsError || 'Please fix your settings'
+          `${validation.name}: ${validation.settingsError || 'Please fix your settings'
           }`
         );
       }
@@ -1144,7 +1142,7 @@ export class PostsService {
         orgId,
         state
       );
-    } catch (err) {}
+    } catch (err) { }
 
     return { id, state };
   }
@@ -1182,7 +1180,7 @@ export class PostsService {
           orgId,
           getPostById.state === 'DRAFT' ? 'DRAFT' : 'QUEUE'
         );
-      } catch (err) {}
+      } catch (err) { }
     }
 
     return newDate;
@@ -1258,9 +1256,8 @@ export class PostsService {
                   {
                     id: '',
                     delay: 0,
-                    content: `Check out the full story here:\n${
-                      body.postId || body.url
-                    }`,
+                    content: `Check out the full story here:\n${body.postId || body.url
+                      }`,
                     image: [],
                   },
                 ],

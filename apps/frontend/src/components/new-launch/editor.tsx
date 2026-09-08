@@ -790,23 +790,22 @@ export const Editor: FC<{
                           />
                         </>
                       )}
-                      {(editorType === 'markdown' || editorType === 'html') &&
-                        identifier !== 'telegram' && (
-                          <>
-                            <AComponent
-                              editor={editorRef?.current?.editor}
-                              currentValue={props.value!}
-                            />
-                            <Bullets
-                              editor={editorRef?.current?.editor}
-                              currentValue={props.value!}
-                            />
-                            <HeadingComponent
-                              editor={editorRef?.current?.editor}
-                              currentValue={props.value!}
-                            />
-                          </>
-                        )}
+                      {(editorType === 'markdown' || editorType === 'html') && (
+                        <>
+                          <AComponent
+                            editor={editorRef?.current?.editor}
+                            currentValue={props.value!}
+                          />
+                          <Bullets
+                            editor={editorRef?.current?.editor}
+                            currentValue={props.value!}
+                          />
+                          <HeadingComponent
+                            editor={editorRef?.current?.editor}
+                            currentValue={props.value!}
+                          />
+                        </>
+                      )}
                       <div
                         data-tooltip-id="tooltip"
                         data-tooltip-content={t('insert_emoji', 'Insert Emoji')}
